@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import dbuchta.gitlab.issue.exporter.service.GitLabApiClient;
 import dbuchta.gitlab.issue.exporter.service.IssueExporter;
 import java.io.IOException;
 import java.util.List;
@@ -30,6 +31,8 @@ public class UserInputProcessor  {
       .build();
 
   private final IssueExporter issueExporter;
+
+  private final GitLabApiClient apiClient;
 
   private final GitLabIssueExportConfigurationProperties config;
 
@@ -76,6 +79,13 @@ public class UserInputProcessor  {
 
   private void exportIssues(String privateToken, String projectId) {
     while (projectId.trim().isEmpty()) {
+      System.out.println("Select project to export issues from:");
+      try {
+        apiClient.listAllProjects(privateToken)
+            .forEach(project -> System.out.println("[" + project.getId() + "] " + project.getName()));
+      } catch (Exception e) {
+        System.out.println("Error loading list of projects: " +  e.getMessage());
+      }
       System.out.print("Enter project ID: ");
       projectId = scanner.nextLine();
     }

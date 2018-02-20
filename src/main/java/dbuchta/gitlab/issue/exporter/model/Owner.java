@@ -7,24 +7,15 @@ import lombok.Data;
 
 @Data
 @Generated("com.robohorse.robopojogenerator")
-public class AssigneesItem {
-
-  @JsonProperty("avatar_url")
-  private Object avatarUrl;
-
-  @JsonProperty("web_url")
-  private String webUrl;
+public class Owner {
 
   @JsonProperty("name")
   private String name;
 
-  @JsonProperty("state")
-  private String state;
+  @JsonProperty("created_at")
+  private String createdAt;
 
   @JsonProperty("id")
   private int id;
-
-  @JsonProperty("username")
-  private String username;
 
 }

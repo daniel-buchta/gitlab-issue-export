@@ -4,7 +4,6 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 import static org.supercsv.prefs.CsvPreference.STANDARD_PREFERENCE;
 
-import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import dbuchta.gitlab.issue.exporter.model.Issue;
 import java.io.File;
@@ -28,7 +27,7 @@ import org.supercsv.io.ICsvListWriter;
 @AllArgsConstructor
 public class IssueExporter {
 
-  private final IssuesApiClient apiClient;
+  private final GitLabApiClient apiClient;
 
   private final Config config;
 

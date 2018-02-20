@@ -8,8 +8,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 import com.google.common.io.ByteStreams;
 import dbuchta.gitlab.issue.exporter.model.Issue;
+import dbuchta.gitlab.issue.exporter.model.Project;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,10 +26,10 @@ import org.springframework.test.web.client.MockRestServiceServer;
 @SpringBootTest
 @AutoConfigureWebClient
 @AutoConfigureMockRestServiceServer
-public class IssuesApiClientTest {
+public class GitLabApiClientTest {
 
   @Autowired
-  private IssuesApiClient issuesApiClient;
+  private GitLabApiClient gitLabApiClient;
 
   @Autowired
   private MockRestServiceServer server;
@@ -37,20 +37,16 @@ public class IssuesApiClientTest {
   @Test
   public void listProjectIssues() throws IOException {
     // setup
-    InputStream body = getClass().getClassLoader()
-        .getResourceAsStream("json-samples/project-issues.json");
-
     server.expect(requestTo("/projects/42/issues"))
         .andExpect(method(HttpMethod.GET))
         .andExpect(header("PRIVATE-TOKEN", "token"))
-        .andRespond(withSuccess(ByteStreams.toByteArray(body), MediaType.APPLICATION_JSON));
+        .andRespond(withSuccess(bodyFromFile("json-samples/project-issues.json"), MediaType.APPLICATION_JSON));
 
     // run
-    List<Issue> result = issuesApiClient.listProjectIssues("token", "42");
+    List<Issue> result = gitLabApiClient.listProjectIssues("token", "42");
 
     //verify
-    assertThat(result).hasSize(1)
-    .extracting(Issue::getId).isNotNull();
+    assertThat(result).hasSize(1).extracting(Issue::getId).isNotNull();
 
     Issue issue = result.get(0);
     assertThat(issue.getId()).isEqualTo("41");
@@ -60,5 +56,36 @@ public class IssuesApiClientTest {
     assertThat(issue.getCreatedAt()).isNotNull();
     assertThat(issue.getUpdatedAt()).isNotNull();
     assertThat(issue.getClosedAt()).isNotNull();
+  }
+
+  @Test
+  public void listAllProjects() throws IOException {
+    // setup
+    server.expect(requestTo("/projects"))
+        .andExpect(method(HttpMethod.GET))
+        .andExpect(header("PRIVATE-TOKEN", "token"))
+        .andRespond(withSuccess(bodyFromFile("json-samples/projects.json"), MediaType.APPLICATION_JSON));
+
+    // run
+    List<Project> result = gitLabApiClient.listAllProjects("token");
+
+    //verify
+    assertThat(result).hasSize(2).extracting(Project::getId).isNotNull();
+
+    Project project0 = result.get(0);
+    assertThat(project0.getId()).isEqualTo(4);
+    assertThat(project0.getName()).isEqualTo("Diaspora Client");
+    assertThat(project0.getWebUrl()).isNotBlank();
+    assertThat(project0.getCreatedAt()).isNotNull();
+
+    Project project1 = result.get(1);
+    assertThat(project1.getId()).isEqualTo(6);
+    assertThat(project1.getName()).isEqualTo("Puppet");
+    assertThat(project1.getWebUrl()).isNotBlank();
+    assertThat(project1.getCreatedAt()).isNotNull();
+  }
+
+  private byte[] bodyFromFile(String name) throws IOException {
+    return ByteStreams.toByteArray(getClass().getClassLoader().getResourceAsStream(name));
   }
 }
