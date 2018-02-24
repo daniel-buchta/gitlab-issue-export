@@ -9,6 +9,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import com.google.common.io.ByteStreams;
 import dbuchta.gitlab.issue.exporter.model.Issue;
 import dbuchta.gitlab.issue.exporter.model.Project;
+import dbuchta.gitlab.issue.exporter.model.User;
 import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
@@ -59,15 +60,15 @@ public class GitLabApiClientTest {
   }
 
   @Test
-  public void listAllProjects() throws IOException {
+  public void listUserProjects() throws IOException {
     // setup
-    server.expect(requestTo("/projects"))
+    server.expect(requestTo("/projects?membership=true"))
         .andExpect(method(HttpMethod.GET))
         .andExpect(header("PRIVATE-TOKEN", "token"))
         .andRespond(withSuccess(bodyFromFile("json-samples/projects.json"), MediaType.APPLICATION_JSON));
 
     // run
-    List<Project> result = gitLabApiClient.listAllProjects("token");
+    List<Project> result = gitLabApiClient.listUserProjects("token");
 
     //verify
     assertThat(result).hasSize(2).extracting(Project::getId).isNotNull();
@@ -83,6 +84,24 @@ public class GitLabApiClientTest {
     assertThat(project1.getName()).isEqualTo("Puppet");
     assertThat(project1.getWebUrl()).isNotBlank();
     assertThat(project1.getCreatedAt()).isNotNull();
+  }
+
+  @Test
+  public void getUser() throws IOException {
+    // setup
+    server.expect(requestTo("/user"))
+        .andExpect(method(HttpMethod.GET))
+        .andExpect(header("PRIVATE-TOKEN", "token"))
+        .andRespond(withSuccess(bodyFromFile("json-samples/user.json"), MediaType.APPLICATION_JSON));
+
+    // run
+    User result = gitLabApiClient.getUser("token");
+
+    //verify
+    assertThat(result.getId()).isEqualTo("1");
+    assertThat(result.getName()).isEqualTo("John Smith");
+    assertThat(result.getWebUrl()).isNotBlank();
+    assertThat(result.getCreatedAt()).isNotNull();
   }
 
   private byte[] bodyFromFile(String name) throws IOException {

@@ -1,7 +1,7 @@
 package dbuchta.gitlab.issue.exporter.model;
 
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import javax.annotation.Generated;
 import lombok.Data;
 
@@ -61,7 +61,7 @@ public class Project {
   private boolean containerRegistryEnabled;
 
   @JsonProperty("owner")
-  private Owner owner;
+  private User owner;
 
   @JsonProperty("visibility")
   private String visibility;

@@ -2,6 +2,7 @@ package dbuchta.gitlab.issue.exporter.service;
 
 import dbuchta.gitlab.issue.exporter.model.Issue;
 import dbuchta.gitlab.issue.exporter.model.Project;
+import dbuchta.gitlab.issue.exporter.model.User;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ import org.springframework.web.client.RestTemplate;
 @AllArgsConstructor
 public class GitLabApiClient {
 
-  private final RestTemplate restTemplate;
+  private final RestTemplate webClient;
 
   /**
    * Calls API endpoint: List project issues
@@ -51,7 +52,7 @@ public class GitLabApiClient {
    */
   public List<Issue> listProjectIssues(String privateToken, String projectId) {
 
-    ResponseEntity<List<Issue>> response = restTemplate
+    ResponseEntity<List<Issue>> response = webClient
         .exchange("/projects/" + projectId + "/issues", HttpMethod.GET,
             createRequestEntity(privateToken), new ParameterizedTypeReference<List<Issue>>() { });
 
@@ -64,16 +65,40 @@ public class GitLabApiClient {
   }
 
   /**
-   * Get a list of all visible projects across GitLab for the authenticated user. When accessed
-   * without authentication, only public projects are returned.
+   * Get a list of all visible projects across GitLab for the authenticated user.
+   * Limit by projects that the current user is a member of.
+   * <pre>
+   * GET /projects?membership=true
+   * </pre>
    *
    * @param privateToken user's personal access token
    * @return list of projects
    */
-  public List<Project> listAllProjects(String privateToken) {
-    ResponseEntity<List<Project>> response = restTemplate
-        .exchange("/projects", HttpMethod.GET, createRequestEntity(privateToken),
-            new ParameterizedTypeReference<List<Project>>() { });
+  public List<Project> listUserProjects(String privateToken) {
+    String url = "/projects?membership=true";
+
+    ResponseEntity<List<Project>> response = webClient.exchange(url, HttpMethod.GET,
+        createRequestEntity(privateToken), new ParameterizedTypeReference<List<Project>>() { });
+
+    if (response.getStatusCode() != HttpStatus.OK) {
+      log.error("Received HTTP response status", response.getStatusCode());
+      throw new RuntimeException("Response status not OK: " + response.getStatusCode());
+    }
+
+    return response.getBody();
+  }
+
+
+  /**
+   * Gets currently authenticated user.
+   * <pre>
+   * GET /user
+   * </pre>
+   */
+  public User getUser(String privateToken) {
+    ResponseEntity<User> response = webClient
+        .exchange("/user", HttpMethod.GET, createRequestEntity(privateToken),
+            User.class);
 
     if (response.getStatusCode() != HttpStatus.OK) {
       log.error("Received HTTP response status", response.getStatusCode());

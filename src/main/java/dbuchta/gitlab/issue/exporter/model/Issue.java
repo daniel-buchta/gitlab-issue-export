@@ -1,7 +1,7 @@
 package dbuchta.gitlab.issue.exporter.model;
 
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import javax.annotation.Generated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +25,7 @@ public class Issue {
   private int iid;
 
   @JsonProperty("author")
-  private Author author;
+  private User author;
 
   @JsonProperty("due_date")
   private String dueDate;
@@ -70,7 +70,7 @@ public class Issue {
   private String state;
 
   @JsonProperty("assignee")
-  private Assignee assignee;
+  private User assignee;
 
   @JsonProperty("id")
   private String id;

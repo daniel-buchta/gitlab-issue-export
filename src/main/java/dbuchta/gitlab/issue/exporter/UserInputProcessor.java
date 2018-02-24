@@ -4,6 +4,8 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import dbuchta.gitlab.issue.exporter.model.Project;
+import dbuchta.gitlab.issue.exporter.model.User;
 import dbuchta.gitlab.issue.exporter.service.GitLabApiClient;
 import dbuchta.gitlab.issue.exporter.service.IssueExporter;
 import java.io.IOException;
@@ -52,6 +54,10 @@ public class UserInputProcessor  {
 
     String privateToken = Optional.ofNullable(config.getPrivateToken()).map(Strings::emptyToNull)
         .orElseGet(this::readPrivateToken);
+
+    User user = apiClient.getUser(privateToken);
+    System.out.println("Hello " + user.getName() + ", #" + user.getId());
+
     List<String> splitInput = selectOption(scanner);
 
     while (!QUIT_COMMANDS.contains(splitInput.get(0))) {
@@ -79,9 +85,11 @@ public class UserInputProcessor  {
 
   private void exportIssues(String privateToken, String projectId) {
     while (projectId.trim().isEmpty()) {
-      System.out.println("Select project to export issues from:");
       try {
-        apiClient.listAllProjects(privateToken)
+        List<Project> projects = apiClient.listUserProjects(privateToken);
+        System.out.println("Found " + projects.size() + " projects:");
+
+        projects
             .forEach(project -> System.out.println("[" + project.getId() + "] " + project.getName()));
       } catch (Exception e) {
         System.out.println("Error loading list of projects: " +  e.getMessage());
