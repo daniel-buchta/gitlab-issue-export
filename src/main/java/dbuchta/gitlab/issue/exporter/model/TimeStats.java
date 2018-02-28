@@ -21,5 +21,4 @@ public class TimeStats {
   @JsonProperty("human_total_time_spent")
   private Object humanTotalTimeSpent;
 
-
 }

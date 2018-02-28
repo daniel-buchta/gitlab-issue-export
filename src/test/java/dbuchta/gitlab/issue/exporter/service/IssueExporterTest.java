@@ -4,17 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
+import dbuchta.gitlab.issue.exporter.MockitoExtension;
 import dbuchta.gitlab.issue.exporter.model.Issue;
 import java.io.File;
 import java.io.IOException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
-public class IssueExporterTest {
+
+@ExtendWith(MockitoExtension.class)
+class IssueExporterTest {
 
   @Mock
   private GitLabApiClient apiClient;
@@ -26,7 +27,7 @@ public class IssueExporterTest {
   private IssueExporter issueExporter;
 
   @Test
-  public void exportIssues() throws IOException {
+  void exportIssues() throws IOException {
     // setup
     when(apiClient.listProjectIssues("token", "42"))
       .thenReturn(ImmutableList.of(

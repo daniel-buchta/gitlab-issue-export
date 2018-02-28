@@ -12,22 +12,22 @@ import dbuchta.gitlab.issue.exporter.model.Project;
 import dbuchta.gitlab.issue.exporter.model.User;
 import java.io.IOException;
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureMockRestServiceServer;
 import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.client.MockRestServiceServer;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureWebClient
 @AutoConfigureMockRestServiceServer
-public class GitLabApiClientTest {
+class GitLabApiClientTest {
 
   @Autowired
   private GitLabApiClient gitLabApiClient;
@@ -36,7 +36,7 @@ public class GitLabApiClientTest {
   private MockRestServiceServer server;
 
   @Test
-  public void listProjectIssues() throws IOException {
+  void listProjectIssues() throws IOException {
     // setup
     server.expect(requestTo("/projects/42/issues"))
         .andExpect(method(HttpMethod.GET))
@@ -60,7 +60,7 @@ public class GitLabApiClientTest {
   }
 
   @Test
-  public void listUserProjects() throws IOException {
+  void listUserProjects() throws IOException {
     // setup
     server.expect(requestTo("/projects?membership=true"))
         .andExpect(method(HttpMethod.GET))
@@ -87,7 +87,7 @@ public class GitLabApiClientTest {
   }
 
   @Test
-  public void getUser() throws IOException {
+  void getUser() throws IOException {
     // setup
     server.expect(requestTo("/user"))
         .andExpect(method(HttpMethod.GET))
